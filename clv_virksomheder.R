@@ -2,33 +2,35 @@
 
 library(tidyverse)
 library(RODBC)
+library(BTYDplus)
 
 #####
+
 # credentials <- read_rds("credentials.rds")
 # 
 # channel <- odbcConnect(credentials[1],credentials[2],credentials[3])
 # 
 # 
 # query <- "
-# SELECT
-#       [DateOrdered_Key]
-# 	   ,ord.[Company_Key]
-# 	   ,CompanyName
-# 	   ,cvr
-#       ,[Customer_Key]
-#       ,[OrderID]
-#       ,[3_NetRevenue]
-#       ,[5_DB2]
+#  SELECT
+#        [DateOrdered_Key]
+#  	   ,ord.[Company_Key]
+#  	   ,CompanyName
+#  	   ,cvr
+#        ,[Customer_Key]
+#        ,[OrderID]
+#        ,[3_NetRevenue]
+#        ,[5_DB2]
 # 
-#   FROM [EDW].[edw].[OrderFactCombined] ord
-#   inner join [EDW].[edw].[Company] comp on comp.Company_Key = ord.Company_Key
+#    FROM [EDW].[edw].[OrderFactCombined] ord
+#    inner join [EDW].[edw].[Company] comp on comp.Company_Key = ord.Company_Key
 # 
-#   where ord.Company_Key > 0"
-
-df <- sqlQuery(channel,query) %>%
-  as_tibble()
-
-df <- write_csv(df,"transactions_company.csv")
+#    where ord.Company_Key > 0"
+#  
+#  df <- sqlQuery(channel,query) %>%
+#    as_tibble()
+#  
+#  df <- write_csv(df,"transactions_company.csv")
 
 #############################################################################################
 
@@ -86,11 +88,12 @@ hist(company_clv$Active)
 # Compare with summed CLV
 
 clv_sum <- read_csv2("clv_virksomheder_2.csv") %>%
-  select(CompanyName,cvr,CLTVtogo540Profit)
+  select(CompanyName,cvr,clv540_2 = CLTVtogo540Profit)
 
 combined_clv <- company_clv %>%
   inner_join(clv_sum) %>%
-  select(cvr,CompanyName,everything())
+  select(cvr,CompanyName,everything()) %>%
+  mutate(clv_avg = (clv540 + clv540_2) / 2)
 
 cor(combined_clv$clv540,combined_clv$CLTVtogo540Profit)
 
