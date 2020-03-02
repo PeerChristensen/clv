@@ -104,9 +104,9 @@ combined_clv %>%
   ylim(c(0,5000)) +
   geom_smooth(method = "lm", se = T)
 
-combined_clv %>% arrange(desc(clv540))
+combined_clv %>% arrange(desc(clv_avg))
 
-write_csv(combined_clv,"combined_clv.csv")
+write_csv2(combined_clv,"combined_clv.csv")
 
 ##############################################################################################################
 # EXTRA
