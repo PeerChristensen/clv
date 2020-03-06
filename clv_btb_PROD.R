@@ -8,13 +8,13 @@
 # ---------------------------------------------------------------------------------
 
 # Company_Key
-# rep_transactions - antal gentagne transaktioner
-# sum_profit       - Profit til dato
-# est_orders540    - estimeret antal ordrer de næste 540 dage
-# Active           - sandsynlighed for at kunden er aktiv
-# clv540           - ny beregning
-# clv540_2         - summeret beregning på kundeniveau
-# clv_avg          - gennemsnit af de to cvl-beregninger
+# Transactions
+# Active        - sandsynlighed for at kunden er aktiv
+# EstOrders540  - estimeret antal ordrer de næste 540 dage
+# ProfitToDate  - Profit til dato
+# CLV540        - ny beregning af clv 540 dage frem
+# CLV540_Old    - summeret beregning på kundeniveau
+# CLV_Avg       - gennemsnit af de to cvl-beregninger
 
 # ---------------------------------------------------------------------------------
 # Pakker
@@ -162,7 +162,11 @@ df2 <- sqlQuery(channel,query2)
 
 combined_clv <- company_clv %>%
   inner_join(df2) %>%
-  mutate(clv_avg = (clv540 + CLTVtogo540Profit) / 2)
+  mutate(CLV_Avg = (clv540 + CLTVtogo540Profit) / 2,
+         Transactions = rep_transactions +1) %>%
+  rename(ProfitToDate = sum_profit, EstOrders540 = est_orders540, CLV540 = clv540,
+         CLV540_Old = CLTVtogo540Profit) %>%
+  select(Company_Key, Transactions, Active, EstOrders540, ProfitToDate, CLV540, CLV540_Old, CLV_Avg)
 
 # cor(combined_clv$clv540,combined_clv$CLTVtogo540Profit)
 
@@ -170,6 +174,5 @@ combined_clv <- company_clv %>%
 # Write to table
 # ---------------------------------------------------------------------------------
 
-sqlDrop(channel, "CompanyCLV", errors = FALSE)
 sqlSave(channel, combined_clv, tablename = "CompanyCLV",rownames = F, safer=F)
 
